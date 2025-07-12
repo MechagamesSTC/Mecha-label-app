@@ -34,5 +34,9 @@ def print_label():
     buffer.seek(0)
     return send_file(buffer, as_attachment=False, download_name="label.pdf", mimetype="application/pdf")
 
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
