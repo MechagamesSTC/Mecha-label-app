@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Print Plain Label</title>
+</head>
+<body>
+    <h2>Generate 4x6 Shipping Label</h2>
+    <form action="/print" method="POST" target="_blank">
+        <label>Customer Name:</label><br>
+        <input type="text" name="name" required><br><br>
+        <label>Shipping Address (use \n for new lines):</label><br>
+        <textarea name="address" rows="4" cols="50" required></textarea><br><br>
+        <button type="submit">Print Plain Label</button>
+    </form>
+</body>
+</html>
