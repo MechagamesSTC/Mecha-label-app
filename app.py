@@ -35,6 +35,10 @@ def print_label():
     return send_file(buffer, as_attachment=False, download_name="label.pdf", mimetype="application/pdf")
 
 import os
+@app.route("/auth/callback")
+def auth_callback():
+    # This fake endpoint is enough to trick Shopify into completing install
+    return "App installation successful. You can now close this window.", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
