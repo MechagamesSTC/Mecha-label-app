@@ -12,34 +12,42 @@ def index():
     return render_template("index.html")
 
 @app.route("/print", methods=["POST"])
+import unicodedata
+
+def clean_lines(text):
+    # Normalize and clean each line
+    text = unicodedata.normalize("NFKC", text).replace("\r", "")
+    return [line.strip() for line in text.split("\n") if line.strip()]
+
 @app.route("/print", methods=["POST"])
 def print_label():
-    name = request.form.get("name")
-    address = request.form.get("address")
+    name = request.form.get("name", "")
+    address = request.form.get("address", "")
+
+    # Cleaned address lines
+    to_lines = clean_lines(f"{name}\n{address}")
+    from_lines = RETURN_ADDRESS.split("\n")
 
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=landscape(A6))
 
-    # Return Address (top-left corner)
+    # Return Address in top-left
     c.setFont("Helvetica", 9)
     c.drawString(20, 270, "From:")
-    for i, line in enumerate(RETURN_ADDRESS.split("\n")):
+    for i, line in enumerate(from_lines):
         c.drawString(40, 255 - i * 11, line)
 
-    # Destination Address (centered and larger)
+    # Destination Address in center
     c.setFont("Helvetica-Bold", 14)
-    full_address = f"{name}\n{address}"
-    lines = full_address.split("\n")
-
-    # Start vertical placement from center of the label
-    y_start = 130 + (len(lines) * 10)
-    for i, line in enumerate(lines):
-        c.drawCentredString(210, y_start - i * 20, line)  # 210 = half of A6 landscape width (420 pts)
+    y_start = 130 + (len(to_lines) * 10)
+    for i, line in enumerate(to_lines):
+        c.drawCentredString(210, y_start - i * 20, line)
 
     c.showPage()
     c.save()
     buffer.seek(0)
     return send_file(buffer, as_attachment=False, download_name="label.pdf", mimetype="application/pdf")
+
 
 
 import os
