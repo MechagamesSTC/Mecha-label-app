@@ -12,6 +12,7 @@ def index():
     return render_template("index.html")
 
 @app.route("/print", methods=["POST"])
+@app.route("/print", methods=["POST"])
 def print_label():
     name = request.form.get("name")
     address = request.form.get("address")
@@ -19,20 +20,27 @@ def print_label():
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=landscape(A6))
 
-    c.setFont("Helvetica", 10)
-    c.drawString(20, 180, "From:")
+    # Return Address (top-left corner)
+    c.setFont("Helvetica", 9)
+    c.drawString(20, 270, "From:")
     for i, line in enumerate(RETURN_ADDRESS.split("\n")):
-        c.drawString(40, 165 - i*12, line)
+        c.drawString(40, 255 - i * 11, line)
 
-    c.drawString(20, 100, "To:")
+    # Destination Address (centered and larger)
+    c.setFont("Helvetica-Bold", 14)
     full_address = f"{name}\n{address}"
-    for i, line in enumerate(full_address.split("\n")):
-        c.drawString(40, 85 - i*12, line)
+    lines = full_address.split("\n")
+
+    # Start vertical placement from center of the label
+    y_start = 130 + (len(lines) * 10)
+    for i, line in enumerate(lines):
+        c.drawCentredString(210, y_start - i * 20, line)  # 210 = half of A6 landscape width (420 pts)
 
     c.showPage()
     c.save()
     buffer.seek(0)
     return send_file(buffer, as_attachment=False, download_name="label.pdf", mimetype="application/pdf")
+
 
 import os
 @app.route("/auth/callback")
