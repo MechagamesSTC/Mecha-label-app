@@ -19,20 +19,20 @@ def clean_lines(text):
 
 @app.route("/print", methods=["POST"])
 def print_label():
-    name = request.form.get("name", "")
     address = request.form.get("address", "")
-
-    to_lines = clean_lines(f"{name}\n{address}")
+    to_lines = clean_lines(address)
     from_lines = RETURN_ADDRESS.split("\n")
 
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=landscape(A6))
 
+    # Return address in top left
     c.setFont("Helvetica", 9)
     c.drawString(20, 270, "From:")
     for i, line in enumerate(from_lines):
         c.drawString(40, 255 - i * 11, line)
 
+    # Centered destination address
     c.setFont("Helvetica-Bold", 14)
     y_start = 130 + (len(to_lines) * 10)
     for i, line in enumerate(to_lines):
